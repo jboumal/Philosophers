@@ -28,7 +28,10 @@ int	main(int argc, char **argv)
 		return (-1);
 	var = init_var(argc, argv);
 	if (!var)
+	{
+		free_var(var);
 		return(-1);
+	}
 	i = 0;
 	while (i < var->n_philo)
 	{
@@ -43,6 +46,5 @@ int	main(int argc, char **argv)
 		i++;
 	}
 	free_var(var);
-	//system("leaks philo");
 	return (0);
 }

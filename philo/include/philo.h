@@ -44,7 +44,7 @@ typedef struct s_var
 }					t_var;
 
 /* init.c */
-t_philo	*init_philo(t_var *var, int index);
+t_philo	*init_philo(int index);
 int		init_ph_array(t_var *var);
 t_var	*init_var(int argc, char **argv);
 

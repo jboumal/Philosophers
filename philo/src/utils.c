@@ -66,7 +66,9 @@ void	*free_var(t_var *var)
 			{
 				if (var->ph_array[i])
 					free(var->ph_array[i]);
+				i++;
 			}
+			free(var->ph_array);
 		}
 		free(var);
 	}
