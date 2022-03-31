@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_functions.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jboumal <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/03/31 18:26:47 by jboumal           #+#    #+#             */
+/*   Updated: 2022/03/31 18:26:49 by jboumal          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 int	starve(t_var *var, t_philo *philo)
@@ -12,7 +24,7 @@ int	starve(t_var *var, t_philo *philo)
 
 void	eat(t_var *var, t_philo *philo)
 {
-	if (philo->index % 2)
+	if ((philo->index + philo->n_eaten) % 2)
 	{
 		pthread_mutex_lock(philo->left_fork);
 		put_action(var, philo, TAKE_FORK);
@@ -51,7 +63,7 @@ void	wait_for_death(t_var *var)
 			if (starve(var, var->ph_array[i]))
 			{
 				i = 0;
-				while(i < var->n_philo)
+				while (i < var->n_philo)
 				{
 					var->ph_array[i]->dead = 1;
 					i++;

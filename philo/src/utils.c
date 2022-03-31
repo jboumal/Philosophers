@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jboumal <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/03/31 18:26:32 by jboumal           #+#    #+#             */
+/*   Updated: 2022/03/31 18:26:33 by jboumal          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	put_action(t_var *var, t_philo *philo, int action)
@@ -53,26 +65,29 @@ int	get_time(t_var *var)
 	return (s - s0 + ms - ms0);
 }
 
-void	*free_var(t_var *var)
+void	free_var(t_var *var)
 {
 	int	i;
 
 	if (var)
 	{
+		pthread_mutex_destroy(&var->mutex);
 		if (var->ph_array)
 		{
 			i = 0;
 			while (i < var->n_philo)
 			{
 				if (var->ph_array[i])
+				{
+					pthread_mutex_destroy(&var->ph_array[i]->right_fork);
 					free(var->ph_array[i]);
+				}
 				i++;
 			}
 			free(var->ph_array);
 		}
 		free(var);
 	}
-	return (NULL);
 }
 
 int	ft_atoi(const char *str)

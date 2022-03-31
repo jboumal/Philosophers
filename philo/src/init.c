@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jboumal <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/03/31 18:26:17 by jboumal           #+#    #+#             */
+/*   Updated: 2022/03/31 18:26:21 by jboumal          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-t_philo *init_philo(int index)
+t_philo	*init_philo(int index)
 {
 	t_philo	*philo;
 
@@ -42,10 +54,9 @@ t_var	*init_var(int argc, char **argv)
 {
 	t_var	*var;
 
-	var = NULL;
 	var = malloc(sizeof(t_var));
 	if (!var)
-		return(NULL);
+		return (NULL);
 	var->ph_array = NULL;
 	var->n_philo = ft_atoi(argv[1]);
 	var->time_to_die = ft_atoi(argv[2]);

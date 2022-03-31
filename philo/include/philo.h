@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jboumal <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/03/31 18:27:00 by jboumal           #+#    #+#             */
+/*   Updated: 2022/03/31 18:27:01 by jboumal          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILO_H
 # define PHILO_H
 # include <stdlib.h>
@@ -52,7 +64,7 @@ t_var	*init_var(int argc, char **argv);
 void	put_action(t_var *var, t_philo *philo, int action);
 void	msleep(int ms);
 int		get_time(t_var *var);
-void	*free_var(t_var *var);
+void	free_var(t_var *var);
 int		ft_atoi(const char *str);
 
 /* philo_functions.c */
