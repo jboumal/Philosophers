@@ -42,6 +42,7 @@ int	main(int argc, char **argv)
 		pthread_join(var->ph_array[i]->pthread_id, NULL);
 		i++;
 	}
+	free_var(var);
 	//system("leaks philo");
 	return (0);
 }
