@@ -37,6 +37,8 @@ typedef struct s_philo
 	atomic_int		last_meal;
 	atomic_int		n_eaten;
 	atomic_int		dead;
+	atomic_int		right_dirty;
+	atomic_int		*left_dirty;
 	pthread_t		pthread_id;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	right_fork;

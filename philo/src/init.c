@@ -23,6 +23,7 @@ t_philo	*init_philo(int index)
 	philo->n_eaten = 0;
 	philo->dead = 0;
 	philo->index = index;
+	philo->right_dirty = 1;
 	if (pthread_mutex_init(&philo->right_fork, NULL) != 0)
 		return (NULL);
 	return (philo);
@@ -43,10 +44,14 @@ int	init_ph_array(t_var *var)
 		if (!var->ph_array[i])
 			return (1);
 		if (i != 0)
+		{
 			var->ph_array[i]->left_fork = &(var->ph_array[i - 1]->right_fork);
+			var->ph_array[i]->left_dirty = &(var->ph_array[i - 1]->right_dirty);
+		}
 		i++;
 	}
 	var->ph_array[0]->left_fork = &(var->ph_array[i - 1]->right_fork);
+	var->ph_array[0]->left_dirty = &(var->ph_array[i - 1]->right_dirty);
 	return (0);
 }
 
