@@ -3,54 +3,94 @@
 /*                                                        :::      ::::::::   */
 /*   philo.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jboumal <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: jboumal <jboumal@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/03/31 18:26:26 by jboumal           #+#    #+#             */
-/*   Updated: 2022/03/31 18:26:28 by jboumal          ###   ########.fr       */
+/*   Created: 2022/04/02 16:30:36 by jboumal           #+#    #+#             */
+/*   Updated: 2022/04/02 16:30:39 by jboumal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	*philo_thread(void *arg)
+static void	pick_right_fork(t_var *var, t_philo *philo, int tidy)
 {
-	t_var	*var;
-	t_philo	*philo;
-
-	var = (t_var *) arg;
-	pthread_mutex_lock(&var->mutex);
-	philo = var->ph_array[var->philo_id - 1];
-	var->philo_id++;
-	pthread_mutex_unlock(&var->mutex);
-	while (var->n_meal == 0 || philo->n_eaten < var->n_meal)
-	{
-		if (philo->dead)
-			return (NULL);
-		eat(var, philo);
-	}
-	return (NULL);
+	while (philo->right_dirty ^ !tidy)
+		usleep(50);
+	pthread_mutex_lock(&philo->right_fork);
+	philo->right_dirty = tidy;
+	put_action(var, philo, TAKE_FORK);
 }
 
-int	main(int argc, char **argv)
+static void	pick_left_fork(t_var *var, t_philo *philo, int tidy)
 {
-	t_var	*v;
-	int		i;
+	while (*philo->left_dirty ^ !tidy)
+		usleep(50);
+	pthread_mutex_lock(philo->left_fork);
+	*philo->left_dirty = tidy;
+	put_action(var, philo, TAKE_FORK);
+}
 
-	if (argc < 5 || argc > 6)
-		return (-1);
-	v = init_var(argc, argv);
-	if (!v)
+void	eat(t_var *var, t_philo *philo)
+{
+	if (var->n_philo % 2 == 1 && philo->index == 1)
 	{
-		free_var(v);
-		return (-1);
+		pick_right_fork(var, philo, 0);
+		pick_left_fork(var, philo, 1);
 	}
-	i = -1;
-	while (++i < v->n_philo)
-		pthread_create(&(v->ph_array[i]->pthread_id), NULL, philo_thread, v);
-	wait_for_death(v);
-	i = -1;
-	while (++i < v->n_philo)
-		pthread_join(v->ph_array[i]->pthread_id, NULL);
-	free_var(v);
+	else if (philo->index % 2 == 1)
+	{
+		pick_right_fork(var, philo, 0);
+		pick_left_fork(var, philo, 0);
+	}
+	else
+	{
+		pick_left_fork(var, philo, 1);
+		pick_right_fork(var, philo, 1);
+	}
+	philo->n_eaten ++;
+	philo->last_meal = get_time(var);
+	put_action(var, philo, EAT);
+	msleep(var->time_to_eat);
+	pthread_mutex_unlock(philo->left_fork);
+	pthread_mutex_unlock(&philo->right_fork);
+	put_action(var, philo, SLEEP);
+	msleep(var->time_to_sleep);
+	put_action(var, philo, THINK);
+}
+
+int	starve(t_var *var, t_philo *philo)
+{
+	if (get_time(var) - philo->last_meal > var->time_to_die)
+	{
+		put_action(var, philo, DIE);
+		return (1);
+	}
 	return (0);
+}
+
+void	wait_for_death(t_var *var)
+{
+	int	i;
+
+	while (1)
+	{		
+		i = 0;
+		while (i < var->n_philo)
+		{
+			if (var->n_meal > 0 && var->n_meal == var->ph_array[i]->n_eaten)
+				return ;
+			if (starve(var, var->ph_array[i]))
+			{
+				i = 0;
+				while (i < var->n_philo)
+				{
+					var->ph_array[i]->dead = 1;
+					i++;
+				}
+				return ;
+			}
+			i++;
+		}
+		usleep(1000);
+	}
 }
