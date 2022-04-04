@@ -14,6 +14,7 @@
 
 void	put_action(t_var *var, t_philo *philo, int action)
 {
+	pthread_mutex_lock(&var->std_mutex);
 	if (!philo->dead)
 	{
 		if (action == TAKE_FORK)
@@ -24,9 +25,12 @@ void	put_action(t_var *var, t_philo *philo, int action)
 			printf("%d %d is sleeping\n", get_time(var), philo->index);
 		else if (action == THINK)
 			printf("%d %d is thinking\n", get_time(var), philo->index);
-		else if (action == DIE)
-			printf("%d %d died\n", get_time(var), philo->index);
 	}
+	else if (action == DIE)
+	{
+		printf("%d %d died\n", get_time(var), philo->index);
+	}
+	pthread_mutex_unlock(&var->std_mutex);
 }
 
 void	msleep(int ms)
@@ -44,7 +48,10 @@ void	msleep(int ms)
 	{
 		gettimeofday(&t, NULL);
 		time = t.tv_sec * 1000000 + t.tv_usec;
-		usleep(50);
+		if (time - time0 < ms * 1000 - 50)
+			usleep(50);
+		else
+			usleep(ms / 1000 - (time - time0) / 1000000);
 	}
 }
 
@@ -72,6 +79,7 @@ void	free_var(t_var *var)
 	if (var)
 	{
 		pthread_mutex_destroy(&var->mutex);
+		pthread_mutex_destroy(&var->std_mutex);
 		if (var->ph_array)
 		{
 			i = 0;

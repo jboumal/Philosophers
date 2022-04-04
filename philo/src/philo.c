@@ -14,8 +14,10 @@
 
 static void	pick_right_fork(t_var *var, t_philo *philo, int tidy)
 {
-	while (philo->right_dirty ^ !tidy)
+	while (!philo->dead && philo->right_dirty ^ !tidy)
 		usleep(50);
+	if (philo->dead)
+		return ;
 	pthread_mutex_lock(&philo->right_fork);
 	philo->right_dirty = tidy;
 	put_action(var, philo, TAKE_FORK);
@@ -23,8 +25,10 @@ static void	pick_right_fork(t_var *var, t_philo *philo, int tidy)
 
 static void	pick_left_fork(t_var *var, t_philo *philo, int tidy)
 {
-	while (*philo->left_dirty ^ !tidy)
+	while (!philo->dead && *philo->left_dirty ^ !tidy)
 		usleep(50);
+	if (philo->dead)
+		return ;
 	pthread_mutex_lock(philo->left_fork);
 	*philo->left_dirty = tidy;
 	put_action(var, philo, TAKE_FORK);
@@ -60,8 +64,16 @@ void	eat(t_var *var, t_philo *philo)
 
 int	starve(t_var *var, t_philo *philo)
 {
+	int	i;
+
 	if (get_time(var) - philo->last_meal > var->time_to_die)
 	{
+		i = 0;
+		while (i < var->n_philo)
+		{
+			var->ph_array[i]->dead = 1;
+			i++;
+		}
 		put_action(var, philo, DIE);
 		return (1);
 	}
@@ -80,17 +92,9 @@ void	wait_for_death(t_var *var)
 			if (var->n_meal > 0 && var->n_meal == var->ph_array[i]->n_eaten)
 				return ;
 			if (starve(var, var->ph_array[i]))
-			{
-				i = 0;
-				while (i < var->n_philo)
-				{
-					var->ph_array[i]->dead = 1;
-					i++;
-				}
 				return ;
-			}
 			i++;
 		}
-		usleep(1000);
+		usleep(50);
 	}
 }

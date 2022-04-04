@@ -75,10 +75,10 @@ t_var	*init_var(int argc, char **argv)
 		|| var->time_to_sleep < 0 || var->n_meal < 0)
 		return (NULL);
 	var->philo_id = 1;
-	if (gettimeofday(&var->t0, NULL) != 0)
+	if (pthread_mutex_init(&var->mutex, NULL) != 0
+		|| pthread_mutex_init(&var->std_mutex, NULL) != 0)
 		return (NULL);
-	if (pthread_mutex_init(&var->mutex, NULL) != 0)
-		return (NULL);
+	gettimeofday(&var->t0, NULL);
 	if (init_ph_array(var) != 0)
 		return (NULL);
 	return (var);

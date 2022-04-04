@@ -54,6 +54,7 @@ typedef struct s_var
 	int				philo_id;
 	t_time			t0;
 	t_philo			**ph_array;
+	pthread_mutex_t	std_mutex;
 	pthread_mutex_t	mutex;
 }					t_var;
 
@@ -69,7 +70,7 @@ int		get_time(t_var *var);
 void	free_var(t_var *var);
 int		ft_atoi(const char *str);
 
-/* philo_functions.c */
+/* philo.c */
 void	die(t_var *var, t_philo *philo);
 void	eat(t_var *var, t_philo *philo);
 void	wait_for_death(t_var *var);
