@@ -14,23 +14,16 @@
 
 void	put_action(t_var *var, t_philo *philo, int action)
 {
-	pthread_mutex_lock(&var->std_mutex);
-	if (!philo->dead)
-	{
-		if (action == TAKE_FORK)
-			printf("%d %d has taken a fork\n", get_time(var), philo->index);
-		else if (action == EAT)
-			printf("%d %d is eating\n", get_time(var), philo->index);
-		else if (action == SLEEP)
-			printf("%d %d is sleeping\n", get_time(var), philo->index);
-		else if (action == THINK)
-			printf("%d %d is thinking\n", get_time(var), philo->index);
-	}
+	if (action == TAKE_FORK)
+		printf("%d %d has taken a fork\n", get_time(var), philo->index);
+	else if (action == EAT)
+		printf("%d %d is eating\n", get_time(var), philo->index);
+	else if (action == SLEEP)
+		printf("%d %d is sleeping\n", get_time(var), philo->index);
+	else if (action == THINK)
+		printf("%d %d is thinking\n", get_time(var), philo->index);
 	else if (action == DIE)
-	{
 		printf("%d %d died\n", get_time(var), philo->index);
-	}
-	pthread_mutex_unlock(&var->std_mutex);
 }
 
 void	msleep(int ms)
@@ -78,18 +71,19 @@ void	free_var(t_var *var)
 
 	if (var)
 	{
-		pthread_mutex_destroy(&var->mutex);
-		pthread_mutex_destroy(&var->std_mutex);
+		if (var->forks_name)
+		{
+			sem_close(var->forks);
+			sem_unlink(var->forks_name);
+			free(var->forks_name);
+		}
 		if (var->ph_array)
 		{
 			i = 0;
 			while (i < var->n_philo)
 			{
 				if (var->ph_array[i])
-				{
-					pthread_mutex_destroy(&var->ph_array[i]->right_fork);
 					free(var->ph_array[i]);
-				}
 				i++;
 			}
 			free(var->ph_array);
