@@ -12,20 +12,6 @@
 
 #include "philo.h"
 
-void	put_action(t_var *var, t_philo *philo, int action)
-{
-	if (action == TAKE_FORK)
-		printf("%d %d has taken a fork\n", get_time(var), philo->index);
-	else if (action == EAT)
-		printf("%d %d is eating\n", get_time(var), philo->index);
-	else if (action == SLEEP)
-		printf("%d %d is sleeping\n", get_time(var), philo->index);
-	else if (action == THINK)
-		printf("%d %d is thinking\n", get_time(var), philo->index);
-	else if (action == DIE)
-		printf("%d %d died\n", get_time(var), philo->index);
-}
-
 void	msleep(int ms)
 {
 	t_time	t0;
@@ -65,10 +51,32 @@ int	get_time(t_var *var)
 	return (s - s0 + ms - ms0);
 }
 
+char	*ft_strdup(const char *src)
+{
+	char	*s;
+	char	*dup;
+	int		size;
+
+	size = 0;
+	s = (char *) src;
+	while (*s++)
+		size ++;
+	dup = malloc((size + 1) * sizeof(char));
+	if (!dup)
+		return (0);
+	s = dup;
+	while (*src)
+	{
+		*s = *src;
+		src ++;
+		s ++;
+	}
+	*s = '\0';
+	return (dup);
+}
+
 void	free_var(t_var *var)
 {
-	int	i;
-
 	if (var)
 	{
 		if (var->forks_name)
@@ -77,17 +85,14 @@ void	free_var(t_var *var)
 			sem_unlink(var->forks_name);
 			free(var->forks_name);
 		}
-		if (var->ph_array)
+		if (var->sem_stdout_name)
 		{
-			i = 0;
-			while (i < var->n_philo)
-			{
-				if (var->ph_array[i])
-					free(var->ph_array[i]);
-				i++;
-			}
-			free(var->ph_array);
+			sem_close(var->sem_stdout);
+			sem_unlink(var->sem_stdout_name);
+			free(var->sem_stdout_name);
 		}
+		if (var->pid_array)
+			free(var->pid_array);
 		free(var);
 	}
 }

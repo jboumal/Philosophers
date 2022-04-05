@@ -9,7 +9,7 @@ NAME		= philo_bonus
 CC			= gcc
 MAKE		= make
 RM			= rm -f
-CFLAGS		= -Wall -Wextra -Werror -Iinclude
+CFLAGS		= -Wall -Wextra -Werror -pthread -Iinclude
 
 $(NAME):		$(OBJS)
 				$(CC) $(CFLAGS) -o $(NAME) $(OBJS)

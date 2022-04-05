@@ -12,7 +12,19 @@
 
 #include "philo.h"
 
-t_philo	*init_philo(int index)
+void	start(t_var *var)
+{
+	int	i;
+
+	i = 0;
+	while (i < var->n_philo / 2)
+	{
+		sem_post(var->forks);
+		i++;
+	}
+}
+
+t_philo	*init_philo(t_var *var, int index)
 {
 	t_philo	*philo;
 
@@ -22,45 +34,21 @@ t_philo	*init_philo(int index)
 	philo->last_meal = 0;
 	philo->n_eaten = 0;
 	philo->index = index;
-	philo->left_eat = 0;
 	philo->pid = 0;
+	philo->var = var;
 	return (philo);
 }
 
-int	init_ph_array(t_var *var)
+static int	init_sem(t_var *var)
 {
-	int	i;
-
-	var->ph_array = malloc(sizeof(t_philo *) * var->n_philo);
-	if (!var->ph_array)
+	var->forks_name = ft_strdup("sem_forks");
+	var->sem_stdout_name = ft_strdup("sem_stdout");
+	if (!var->forks_name || !var->sem_stdout_name)
 		return (1);
-	memset(var->ph_array, 0, sizeof(t_philo *) * var->n_philo);
-	i = 0;
-	while (i < var->n_philo)
-	{
-		var->ph_array[i] = init_philo(i + 1);
-		if (!var->ph_array[i])
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-int	init_forks(t_var *var, char *name)
-{
-	int	i;
-
-	var->forks_name = malloc(11 * sizeof(char));
-	if (!var->forks_name)
-		return (1);
-	i = 0;
-	while (i < 10)
-	{
-		var->forks_name[i] = *(name + i);
-		i++;
-	}
-	var->forks_name[i] = 0;
-	var->forks = sem_open(var->forks_name, O_CREAT, 0666, var->n_philo);
+	sem_unlink(var->forks_name);
+	sem_unlink(var->sem_stdout_name);
+	var->forks = sem_open(var->forks_name, O_CREAT, 0644, 0);
+	var->sem_stdout = sem_open(var->sem_stdout_name, O_CREAT, 0644, 1);
 	if (!var->forks)
 		return (1);
 	return (0);
@@ -73,7 +61,7 @@ t_var	*init_var(int argc, char **argv)
 	var = malloc(sizeof(t_var));
 	if (!var)
 		return (NULL);
-	var->ph_array = NULL;
+	var->pid_array = NULL;
 	var->forks_name = NULL;
 	var->n_philo = ft_atoi(argv[1]);
 	var->time_to_die = ft_atoi(argv[2]);
@@ -87,9 +75,10 @@ t_var	*init_var(int argc, char **argv)
 		|| var->time_to_sleep < 0 || var->n_meal < 0)
 		return (NULL);
 	gettimeofday(&var->t0, NULL);
-	if (init_ph_array(var) != 0)
+	var->pid_array = malloc(sizeof(pid_t *) * var->n_philo);
+	if (!var->pid_array)
 		return (NULL);
-	if (init_forks(var, "sem_forks") != 0)
+	if (init_sem(var) != 0)
 		return (NULL);
 	return (var);
 }
