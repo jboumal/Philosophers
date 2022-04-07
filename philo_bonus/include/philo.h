@@ -71,6 +71,8 @@ void	free_var(t_var *var);
 int		ft_atoi(const char *str);
 
 /* philo.c */
+void	wait_all(t_var *var);
+void	kill_all(t_var *var);
 void	put_action(t_var *var, t_philo *philo, int action);
 void	die(t_var *var, t_philo *philo);
 void	eat(t_var *var, t_philo *philo);

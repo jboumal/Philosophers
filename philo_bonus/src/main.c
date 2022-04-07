@@ -19,24 +19,27 @@ void	*death_thread(void *arg)
 
 	philo = (t_philo *) arg;
 	var = philo->var;
-	while (1)
+	while (var->n_meal == 0 || philo->n_eaten < var->n_meal)
 	{
-		if (var->n_meal != 0 && philo->n_eaten >= var->n_meal)
+		if (philo->last_meal != 0)
 		{
-			exit(EXIT_SUCCESS);
+			if (get_time(var) - philo->last_meal > var->time_to_die)
+			{
+				put_action(var, philo, DIE);
+				exit(42);
+			}
 		}
-		if (philo->last_meal != 0
-			&& get_time(var) - philo->last_meal > var->time_to_die)
+		else if (get_time(var) > var->time_to_die)
 		{
 			put_action(var, philo, DIE);
-			exit(EXIT_SUCCESS);
+			exit(42);
 		}
 		usleep(1000);
 	}
 	return (NULL);
 }
 
-static void	process_create(t_var *var, int index)
+static pid_t	process_create(t_var *var, int index)
 {
 	t_philo	*philo;
 	pid_t	pid;
@@ -53,18 +56,20 @@ static void	process_create(t_var *var, int index)
 			exit(EXIT_FAILURE);
 		}
 		pthread_create(&(philo->pthread_id), NULL, death_thread, philo);
-		while (1)
-		{
+		while (var->n_meal == 0 || philo->n_eaten < var->n_meal)
 			eat(var, philo);
-		}
+		pthread_join(philo->pthread_id, NULL);
+		return (pid);
 	}
 	else
 		var->pid_array[index] = pid;
+	return (pid);
 }
 
 int	main(int argc, char **argv)
 {
 	t_var	*var;
+	pid_t	pid;
 	int		i;
 
 	if (argc < 5 || argc > 6)
@@ -77,15 +82,12 @@ int	main(int argc, char **argv)
 	}
 	i = -1;
 	while (++i < var->n_philo)
-		process_create(var, i);
-	start(var);
-	waitpid(-1, NULL, 0);
-	i = -1;
-	while (++i < var->n_philo)
 	{
-		if (var->pid_array[i] != 0)
-			kill(var->pid_array[i], SIGKILL);
+		pid = process_create(var, i);
+		if (pid == 0)
+			return (0);
 	}
-	free_var(var);
+	start(var);
+	wait_all(var);
 	return (0);
 }

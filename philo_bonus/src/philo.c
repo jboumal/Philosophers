@@ -12,6 +12,35 @@
 
 #include "philo.h"
 
+void	wait_all(t_var *var)
+{
+	int	i;
+	int	status;
+
+	i = 0;
+	while (i < var->n_philo)
+	{
+		waitpid(-1, &status, 0);
+		if (WEXITSTATUS(status) == 42)
+			kill_all(var);
+		i++;
+	}
+}
+
+void	kill_all(t_var *var)
+{
+	int	i;
+
+	i = -1;
+	while (++i < var->n_philo)
+	{
+		if (var->pid_array[i] != 0)
+			kill(var->pid_array[i], SIGKILL);
+	}
+	free_var(var);
+	exit(EXIT_SUCCESS);
+}
+
 void	put_action(t_var *var, t_philo *philo, int action)
 {
 	sem_wait(var->sem_stdout);
