@@ -71,7 +71,7 @@ t_var	*init_var(int argc, char **argv)
 		var->n_meal = ft_atoi(argv[5]);
 	else
 		var->n_meal = 0;
-	if (var->n_philo < 0 || var->time_to_die < 0 || var->time_to_eat < 0
+	if (var->n_philo <= 0 || var->time_to_die < 0 || var->time_to_eat < 0
 		|| var->time_to_sleep < 0 || var->n_meal < 0)
 		return (NULL);
 	var->philo_id = 1;

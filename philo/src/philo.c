@@ -39,17 +39,14 @@ void	eat(t_var *var, t_philo *philo)
 	if (var->n_philo % 2 == 1 && philo->index == 1)
 	{
 		pick_right_fork(var, philo, 0);
+		if (var->n_philo == 1)
+			return ;
 		pick_left_fork(var, philo, 1);
-	}
-	else if (philo->index % 2 == 1)
-	{
-		pick_right_fork(var, philo, 0);
-		pick_left_fork(var, philo, 0);
 	}
 	else
 	{
-		pick_left_fork(var, philo, 1);
-		pick_right_fork(var, philo, 1);
+		pick_right_fork(var, philo, philo->index % 2 ^ 1);
+		pick_left_fork(var, philo, philo->index % 2 ^ 1);
 	}
 	philo->n_eaten ++;
 	philo->last_meal = get_time(var);
@@ -95,6 +92,6 @@ void	wait_for_death(t_var *var)
 				return ;
 			i++;
 		}
-		usleep(50);
+		usleep(1000);
 	}
 }
